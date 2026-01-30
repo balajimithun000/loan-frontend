@@ -31,7 +31,7 @@ export default function Register() {
 
     try {
       let payload = {};
-      const endpoint = role === "ADMIN" ? "/api/user/admin/register" : "/api/users/register";
+      const endpoint = role === "ADMIN" ? "/api/users/admin/register" : "/api/users/register";
 
       if (role === "ADMIN") {
         payload = { fullName: name, email, password };
