@@ -8,6 +8,7 @@ import "../styles/ui.css";
 
 export default function Register() {
   const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,23 +31,24 @@ export default function Register() {
     }
 
     try {
-      let payload = {};
-      const endpoint = role === "ADMIN" ? "/api/users/admin/register" : "/api/users/register";
+      const endpoint =
+        role === "ADMIN"
+          ? "/api/users/admin/register"
+          : "/api/users/register";
 
-      if (role === "ADMIN") {
-        payload = { fullName: name, email, password };
-      } else {
-        payload = { name, email, password, phone, age, salary };
-      }
+      const payload =
+        role === "ADMIN"
+          ? { fullName: name, email, password }
+          : { name, email, password, phone, age, salary };
 
       await API.post(endpoint, payload);
-      setSuccess("Registration successful! Redirecting to login...");
 
-      setTimeout(() => navigate("/login"), 150);
+      setSuccess("Registration successful!");
+      setTimeout(() => navigate("/login"), 500);
     } catch (err) {
       setError(
-        err?.response?.data ||
         err?.response?.data?.message ||
+        err?.response?.data ||
         "Registration failed"
       );
     }
@@ -55,45 +57,35 @@ export default function Register() {
   return (
     <div className="container fade-in">
       <Card>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Register</h2>
+        <h2 style={{ textAlign: "center", marginBottom: 20 }}>Register</h2>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
 
         <form onSubmit={handleRegister}>
-          <Input label="Full Name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input label="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <Input label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
 
           {role === "USER" && (
             <>
-              <Input label="Phone" type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
               <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
               <Input label="Salary" type="number" value={salary} onChange={(e) => setSalary(e.target.value)} />
             </>
           )}
 
-          <label style={{ display: "block", marginBottom: "15px" }}>
-            Role:
-            <select value={role} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "5px" }}>
+          <label>
+            Role
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
             </select>
           </label>
 
-          <Button type="submit" className="w-full">Register</Button>
+          <Button>Register</Button>
         </form>
-
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
-          Already have an account?{" "}
-          <span
-            style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => navigate("/login")} // ✅ NO SPACE
-          >
-            Login
-          </span>
-        </p>
       </Card>
     </div>
   );

@@ -7,11 +7,28 @@ const API = axios.create({
   },
 });
 
+// 🔑 PUBLIC ENDPOINTS (NO TOKEN)
+const publicEndpoints = [
+  "/api/users/register",
+  "/api/users/admin/register",
+  "/api/users/login",
+];
 
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    // ✅ DO NOT attach token for public APIs
+    if (
+      token &&
+      !publicEndpoints.some((url) => config.url.includes(url))
+    ) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default API;
