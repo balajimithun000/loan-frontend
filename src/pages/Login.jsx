@@ -1,44 +1,54 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import API from "../api/axiosConfig";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import { useNavigate } from "react-router-dom";
 import "../styles/ui.css";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [age, setAge] = useState("");
+  const [salary, setSalary] = useState("");
+  const [role, setRole] = useState("USER");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
     try {
-      const res = await API.post("/api/users/login", { email, password });
-      const token = res.data; // JWT from backend
-      localStorage.setItem("token", token);
+      const endpoint =
+        role === "ADMIN"
+          ? "/users/admin/register"
+          : "/users/register";
 
-      // Decode JWT payload to get role
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const userRole = payload.role; // "USER" or "ADMIN"
-      localStorage.setItem("role", userRole);
+      const payload =
+        role === "ADMIN"
+          ? { fullName: name, email, password }
+          : { name, email, password, phone, age, salary };
 
-      // Redirect based on role
-      if (userRole === "USER") {
-        navigate("/profile"); // USER dashboard/profile
-      } else if (userRole === "ADMIN") {
-        navigate("/admin/dashboard"); // ADMIN dashboard
-      } else {
-        setError("Invalid role in token");
-      }
+      await API.post(endpoint, payload);
+
+      setSuccess("Registration successful!");
+      setTimeout(() => navigate("/login"), 300);
     } catch (err) {
       setError(
+        err?.response?.data?.message ||
         err?.response?.data ||
-        err?.response?.data?.error ||
-        "Login failed"
+        "Registration failed"
       );
     }
   };
@@ -46,38 +56,32 @@ export default function Login() {
   return (
     <div className="container fade-in">
       <Card>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Login</h2>
+        <h2 style={{ textAlign: "center" }}>Register</h2>
 
         {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
 
-        <form onSubmit={handleLogin}>
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <form onSubmit={handleRegister}>
+          <Input label="Full Name" value={name} onChange={e => setName(e.target.value)} required />
+          <Input label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+          <Input label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+          <Input label="Confirm Password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
 
-          <Button type="submit" className="w-full">Login</Button>
+          {role === "USER" && (
+            <>
+              <Input label="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
+              <Input label="Age" type="number" value={age} onChange={e => setAge(e.target.value)} />
+              <Input label="Salary" type="number" value={salary} onChange={e => setSalary(e.target.value)} />
+            </>
+          )}
+
+          <select value={role} onChange={e => setRole(e.target.value)}>
+            <option value="USER">User</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+
+          <Button type="submit">Register</Button>
         </form>
-
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
-          Don't have an account?{" "}
-          <span
-            style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => navigate("/register")}
-          >
-            Register
-          </span>
-        </p>
       </Card>
     </div>
   );
