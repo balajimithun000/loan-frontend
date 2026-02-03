@@ -18,10 +18,13 @@ API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    // ✅ DO NOT attach token for public APIs
+    // Normalize URL (important)
+    const url = config.url || "";
+
+    // ✅ Attach token ONLY for protected APIs
     if (
       token &&
-      !publicEndpoints.some((url) => config.url.includes(url))
+      !publicEndpoints.some((endpoint) => url.startsWith(endpoint))
     ) {
       config.headers.Authorization = `Bearer ${token}`;
     }
