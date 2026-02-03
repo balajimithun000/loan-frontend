@@ -2,4 +2,4 @@
   from = "/api/*"
   to = "https://loan-backend-production-8c32.up.railway.app/api/:splat"
   status = 200
-  force = true
+  

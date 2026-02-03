@@ -1,27 +1,26 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "/api",
+  baseURL: "https://loan-backend-production-8c32.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 // 🔑 PUBLIC ENDPOINTS (NO TOKEN)
+// ⚠️ IMPORTANT: /api REMOVE pannu
 const publicEndpoints = [
-  "/api/users/register",
-  "/api/users/admin/register",
-  "/api/users/login",
+  "/users/register",
+  "/users/admin/register",
+  "/users/login",
 ];
 
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-
-    // Normalize URL (important)
     const url = config.url || "";
 
-    // ✅ Attach token ONLY for protected APIs
+    // ✅ Attach token ONLY if NOT public endpoint
     if (
       token &&
       !publicEndpoints.some((endpoint) => url.startsWith(endpoint))
