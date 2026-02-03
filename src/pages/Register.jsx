@@ -8,6 +8,7 @@ import "../styles/ui.css";
 
 export default function Register() {
   const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +32,12 @@ export default function Register() {
 
     try {
       let payload = {};
-      const endpoint = role === "ADMIN" ? "/api/users/admin/register" : "/api/users/register";
+
+      // ✅ CORRECT ENDPOINT
+      const endpoint =
+        role === "ADMIN"
+          ? "/users/admin/register"
+          : "/users/register";
 
       if (role === "ADMIN") {
         payload = { fullName: name, email, password };
@@ -40,13 +46,14 @@ export default function Register() {
       }
 
       await API.post(endpoint, payload);
-      setSuccess("Registration successful! Redirecting to login...");
 
+      setSuccess("Registration successful! Redirecting to login...");
       setTimeout(() => navigate("/login"), 150);
+
     } catch (err) {
       setError(
-        err?.response?.data ||
         err?.response?.data?.message ||
+        err?.response?.data ||
         "Registration failed"
       );
     }
@@ -61,22 +68,26 @@ export default function Register() {
         {success && <p className="success">{success}</p>}
 
         <form onSubmit={handleRegister}>
-          <Input label="Full Name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input label="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <Input label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
 
           {role === "USER" && (
             <>
-              <Input label="Phone" type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
               <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
               <Input label="Salary" type="number" value={salary} onChange={(e) => setSalary(e.target.value)} />
             </>
           )}
 
-          <label style={{ display: "block", marginBottom: "15px" }}>
+          <label style={{ marginBottom: "15px", display: "block" }}>
             Role:
-            <select value={role} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "5px" }}>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+            >
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
             </select>
@@ -89,7 +100,7 @@ export default function Register() {
           Already have an account?{" "}
           <span
             style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => navigate("/login")} // ✅ NO SPACE
+            onClick={() => navigate("/login")}
           >
             Login
           </span>
@@ -98,4 +109,3 @@ export default function Register() {
     </div>
   );
 }
-
