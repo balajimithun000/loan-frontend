@@ -31,24 +31,20 @@ export default function Register() {
     }
 
     try {
-      let payload = {};
-
-      // ✅ CORRECT ENDPOINT
       const endpoint =
         role === "ADMIN"
           ? "/users/admin/register"
           : "/users/register";
 
-      if (role === "ADMIN") {
-        payload = { fullName: name, email, password };
-      } else {
-        payload = { name, email, password, phone, age, salary };
-      }
+      const payload =
+        role === "ADMIN"
+          ? { fullName: name, email, password }
+          : { name, email, password, phone, age, salary };
 
       await API.post(endpoint, payload);
 
       setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 150);
+      setTimeout(() => navigate("/login"), 800);
 
     } catch (err) {
       setError(
@@ -61,45 +57,97 @@ export default function Register() {
 
   return (
     <div className="container fade-in">
-      <Card>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Register</h2>
+      <Card style={{ maxWidth: "420px", margin: "auto" }}>
+        <h2 style={{ textAlign: "center", marginBottom: "18px" }}>
+          Create Account
+        </h2>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
 
-        <form onSubmit={handleRegister}>
-          <Input label="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <Input label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+        <form onSubmit={handleRegister} className="form">
+          <Input
+            label="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <Input
+            label="Confirm Password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
 
           {role === "USER" && (
             <>
-              <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-              <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
-              <Input label="Salary" type="number" value={salary} onChange={(e) => setSalary(e.target.value)} />
+              <Input
+                label="Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+
+              <Input
+                label="Age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+              />
+
+              <Input
+                label="Salary"
+                type="number"
+                value={salary}
+                onChange={(e) => setSalary(e.target.value)}
+              />
             </>
           )}
 
-          <label style={{ marginBottom: "15px", display: "block" }}>
-            Role:
+          {/* ROLE SELECT */}
+          <div style={{ marginBottom: "14px" }}>
+            <label className="label">Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+              className="select"
             >
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
             </select>
-          </label>
+          </div>
 
-          <Button type="submit" className="w-full">Register</Button>
+          <Button type="submit" className="w-full">
+            Register
+          </Button>
         </form>
 
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
+        {/* LOGIN LINK */}
+        <p style={{ marginTop: "16px", textAlign: "center" }}>
           Already have an account?{" "}
           <span
-            style={{ color: "var(--primary)", cursor: "pointer" }}
+            style={{
+              color: "var(--primary)",
+              cursor: "pointer",
+              fontWeight: "600",
+            }}
             onClick={() => navigate("/login")}
           >
             Login
