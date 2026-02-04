@@ -1,54 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axiosConfig";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import { useNavigate } from "react-router-dom";
 import "../styles/ui.css";
 
-export default function Register() {
+export default function Login() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [age, setAge] = useState("");
-  const [salary, setSalary] = useState("");
-  const [role, setRole] = useState("USER");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  const handleRegister = async (e) => {
+  // 🔐 If already logged in, redirect
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
 
     try {
-      const endpoint =
-        role === "ADMIN"
-          ? "/users/admin/register"
-          : "/users/register";
+      // 1️⃣ LOGIN API
+      const res = await API.post("/users/login", {
+        email,
+        password,
+      });
 
-      const payload =
-        role === "ADMIN"
-          ? { fullName: name, email, password }
-          : { name, email, password, phone, age, salary };
+      const token = res.data;
 
-      await API.post(endpoint, payload);
+      // 2️⃣ SAVE TOKEN
+      localStorage.setItem("token", token);
 
-      setSuccess("Registration successful!");
-      setTimeout(() => navigate("/login"), 300);
+      // 3️⃣ GET PROFILE (to know role)
+      const profileRes = await API.get("/users/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const role = profileRes.data.role;
+
+      // 4️⃣ ROLE BASED REDIRECT
+      if (role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/profile");
+      }
+
     } catch (err) {
       setError(
         err?.response?.data?.message ||
         err?.response?.data ||
-        "Registration failed"
+        "Login failed"
       );
     }
   };
@@ -56,32 +65,44 @@ export default function Register() {
   return (
     <div className="container fade-in">
       <Card>
-        <h2 style={{ textAlign: "center" }}>Register</h2>
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          Login
+        </h2>
 
         {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
 
-        <form onSubmit={handleRegister}>
-          <Input label="Full Name" value={name} onChange={e => setName(e.target.value)} required />
-          <Input label="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <Input label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-          <Input label="Confirm Password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+        <form onSubmit={handleLogin}>
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-          {role === "USER" && (
-            <>
-              <Input label="Phone" value={phone} onChange={e => setPhone(e.target.value)} />
-              <Input label="Age" type="number" value={age} onChange={e => setAge(e.target.value)} />
-              <Input label="Salary" type="number" value={salary} onChange={e => setSalary(e.target.value)} />
-            </>
-          )}
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-          <select value={role} onChange={e => setRole(e.target.value)}>
-            <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-
-          <Button type="submit">Register</Button>
+          <Button type="submit" className="w-full">
+            Login
+          </Button>
         </form>
+
+        {/* 👇 REGISTER LINK (IMPORTANT) */}
+        <p style={{ marginTop: "15px", textAlign: "center" }}>
+          Don’t have an account?{" "}
+          <span
+            style={{ color: "var(--primary)", cursor: "pointer" }}
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </span>
+        </p>
       </Card>
     </div>
   );

@@ -15,24 +15,26 @@ export default function UploadDocument({ loanId }) {
     setError("");
     setMessage("");
 
-    try {
-      const token = localStorage.getItem("token");
+    if (!file) {
+      setError("Please select a file");
+      return;
+    }
 
+    try {
       const formData = new FormData();
       formData.append("loanId", loanId);
       formData.append("documentType", documentType);
       formData.append("file", file);
 
-      await API.post("/api/users/documents/upload", formData, {
+      await API.post("/users/documents/upload", formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
       setMessage("Document uploaded successfully!");
 
-      // ⭐ redirect to profile
+      // ⭐ redirect back to profile
       setTimeout(() => navigate("/profile"), 800);
 
     } catch (err) {

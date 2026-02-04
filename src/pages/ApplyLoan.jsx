@@ -30,7 +30,7 @@ export default function ApplyLoan() {
         creditScore
       };
 
-      const res = await API.post("/api/users/loans/apply", dto, {
+      const res = await API.post("/users/loans/apply", dto, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

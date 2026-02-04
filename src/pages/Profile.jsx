@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import API from "../api/axiosConfig";
 import Card from "../components/Card";
@@ -15,31 +14,31 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        // Fetch user profile
-        const profileRes = await API.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // ✅ Token automatically attached by axios interceptor
+        const profileRes = await API.get("/users/profile");
         setUser(profileRes.data);
 
-        // Fetch user loans
-        const loansRes = await API.get("/api/users/loans", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const loansRes = await API.get("/users/loans");
         setLoans(loansRes.data);
 
       } catch (err) {
+        // 🔐 Auto logout if token invalid
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+          return;
+        }
+
         setError(
-          err?.response?.data ||
           err?.response?.data?.message ||
-          "Failed to fetch profile" 
+          err?.response?.data ||
+          "Failed to fetch profile"
         );
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   if (!user) return <p>Loading profile...</p>;
 
