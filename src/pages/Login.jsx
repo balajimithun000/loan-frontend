@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axiosConfig";
 import Input from "../components/Input";
@@ -13,20 +13,12 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 🔐 Already logged in na redirect
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/profile"); // default user page
-    }
-  }, [navigate]);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      // 1️⃣ LOGIN API
+      // 1️⃣ LOGIN
       const res = await API.post("/users/login", {
         email,
         password,
@@ -37,7 +29,7 @@ export default function Login() {
       // 2️⃣ SAVE TOKEN
       localStorage.setItem("token", token);
 
-      // 3️⃣ GET PROFILE (ROLE CHECK)
+      // 3️⃣ GET PROFILE (ROLE)
       const profileRes = await API.get("/users/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -86,11 +78,13 @@ export default function Login() {
             required
           />
 
-          <Button type="submit">Login</Button>
+          <Button type="submit">
+            Login
+          </Button>
         </form>
 
         {/* 👇 REGISTER LINK */}
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
+        <p className="auth-footer">
           Don’t have an account?{" "}
           <span onClick={() => navigate("/register")}>
             Register

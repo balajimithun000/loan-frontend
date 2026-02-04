@@ -3,6 +3,7 @@ import API from "../api/axiosConfig";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import UploadDocument from "./UploadDocument";
+import "../styles/ui.css";
 
 export default function ApplyLoan() {
   const [loanType, setLoanType] = useState("");
@@ -12,7 +13,7 @@ export default function ApplyLoan() {
   const [creditScore, setCreditScore] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [createdLoan, setCreatedLoan] = useState(null); // 👈 saved loan
+  const [createdLoan, setCreatedLoan] = useState(null);
 
   const handleApply = async (e) => {
     e.preventDefault();
@@ -24,10 +25,10 @@ export default function ApplyLoan() {
 
       const dto = {
         loanType,
-        loanAmount,
-        tenureMonth,
-        income,
-        creditScore
+        loanAmount: Number(loanAmount),
+        tenureMonth: Number(tenureMonth),
+        income: Number(income),
+        creditScore: Number(creditScore),
       };
 
       const res = await API.post("/users/loans/apply", dto, {
@@ -36,8 +37,9 @@ export default function ApplyLoan() {
         },
       });
 
-      setCreatedLoan(res.data); // 👈 store loan
-      setMessage("Loan applied successfully! Now upload your documents.");
+      setCreatedLoan(res.data);
+      setMessage("Loan applied successfully! Please upload documents.");
+
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -57,12 +59,16 @@ export default function ApplyLoan() {
 
         {!createdLoan && (
           <form onSubmit={handleApply}>
-            <select value={loanType} onChange={(e) => setLoanType(e.target.value)} required>
+            <select
+              value={loanType}
+              onChange={(e) => setLoanType(e.target.value)}
+              required
+            >
               <option value="">Select Loan Type</option>
               <option value="HOME">Home Loan</option>
               <option value="PERSONAL">Personal Loan</option>
               <option value="EDUCATION">Education Loan</option>
-              <option value="VECHILE">Vechile Loan</option>
+              <option value="VEHICLE">Vehicle Loan</option>
               <option value="BUSINESS">Business Loan</option>
               <option value="GOLD">Gold Loan</option>
             </select>
@@ -99,11 +105,13 @@ export default function ApplyLoan() {
               required
             />
 
-            <Button type="submit">Apply</Button>
+            <Button type="submit">
+              Apply Loan
+            </Button>
           </form>
         )}
 
-        {/* ✔ show upload box only after loan created */}
+        {/* 📎 Upload documents only after loan created */}
         {createdLoan && (
           <UploadDocument loanId={createdLoan.id} />
         )}
@@ -111,4 +119,3 @@ export default function ApplyLoan() {
     </div>
   );
 }
-

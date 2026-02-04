@@ -1,25 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axiosConfig";
-import Card from "../components/Card";
+import Input from "../components/Input";
 import Button from "../components/Button";
+import Card from "../components/Card";
 import "../styles/ui.css";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("USER");
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  // USER only fields
-  const [phone, setPhone] = useState("");
-  const [age, setAge] = useState("");
-  const [salary, setSalary] = useState("");
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -28,37 +21,26 @@ export default function Register() {
     setError("");
     setSuccess("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     try {
-      const endpoint =
-        role === "ADMIN"
-          ? "/users/admin/register"
-          : "/users/register";
+      const endpoint = isAdmin
+        ? "/users/admin/register"
+        : "/users/register";
 
-      const payload =
-        role === "ADMIN"
-          ? {
-              fullName: name,
-              email,
-              password,
-            }
-          : {
-              name,
-              email,
-              password,
-              phone,
-              age,
-              salary,
-            };
+      await API.post(endpoint, {
+        name,
+        email,
+        password,
+      });
 
-      await API.post(endpoint, payload);
+      setSuccess(
+        isAdmin
+          ? "Admin registered successfully! Please login."
+          : "Registered successfully! Please login."
+      );
 
-      setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
 
     } catch (err) {
       setError(
@@ -72,82 +54,58 @@ export default function Register() {
   return (
     <div className="container fade-in">
       <Card>
-        <h2>Register</h2>
+        <h2>
+          {isAdmin ? "Admin Register" : "User Register"}
+        </h2>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
 
         <form onSubmit={handleRegister}>
-          {/* ROLE */}
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="USER">User</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-
-          {/* COMMON */}
-          <input
+          <Input
+            label="Name"
             type="text"
-            placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            label="Email"
             type="email"
-            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <input
+          <Input
+            label="Password"
             type="password"
-            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-
-          {/* USER ONLY */}
-          {role === "USER" && (
-            <>
+          {/* 🔁 ADMIN TOGGLE */}
+          <div style={{ marginBottom: "15px" }}>
+            <label>
               <input
-                type="text"
-                placeholder="Phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="checkbox"
+                checked={isAdmin}
+                onChange={() => setIsAdmin(!isAdmin)}
+                style={{ marginRight: "8px" }}
               />
+              Register as Admin
+            </label>
+          </div>
 
-              <input
-                type="number"
-                placeholder="Age"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-              />
-
-              <input
-                type="number"
-                placeholder="Salary"
-                value={salary}
-                onChange={(e) => setSalary(e.target.value)}
-              />
-            </>
-          )}
-
-          <Button type="submit">Register</Button>
+          <Button type="submit">
+            Register
+          </Button>
         </form>
 
-        {/* ✅ LOGIN LINK (VISIBLE) */}
-        <p style={{ textAlign: "center", marginTop: "15px" }}>
+        {/* 👇 LOGIN LINK – GUARANTEED VISIBLE */}
+        <p className="auth-footer">
           Already have an account?{" "}
           <span onClick={() => navigate("/login")}>
             Login
