@@ -5,6 +5,7 @@ const API = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // ⭐ THIS IS THE FIX
 });
 
 // 🔑 PUBLIC ENDPOINTS (NO TOKEN)
