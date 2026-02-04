@@ -9,6 +9,8 @@ import "../styles/ui.css";
 export default function Register() {
   const navigate = useNavigate();
 
+  const [role, setRole] = useState("USER");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,7 +18,7 @@ export default function Register() {
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState("");
   const [salary, setSalary] = useState("");
-  const [role, setRole] = useState("USER");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -38,13 +40,24 @@ export default function Register() {
 
       const payload =
         role === "ADMIN"
-          ? { fullName: name, email, password }
-          : { name, email, password, phone, age, salary };
+          ? {
+              fullName: name,
+              email,
+              password,
+            }
+          : {
+              name,
+              email,
+              password,
+              phone,
+              age,
+              salary,
+            };
 
       await API.post(endpoint, payload);
 
       setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 800);
+      setTimeout(() => navigate("/login"), 1200);
 
     } catch (err) {
       setError(
@@ -58,14 +71,28 @@ export default function Register() {
   return (
     <div className="container fade-in">
       <Card style={{ maxWidth: "420px", margin: "auto" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "18px" }}>
-          Create Account
+        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+          Register
         </h2>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
 
-        <form onSubmit={handleRegister} className="form">
+        <form onSubmit={handleRegister} className="form-stack">
+
+          {/* ROLE */}
+          <label className="label">
+            Register As
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="input"
+            >
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </label>
+
           <Input
             label="Full Name"
             value={name}
@@ -97,6 +124,7 @@ export default function Register() {
             required
           />
 
+          {/* USER ONLY FIELDS */}
           {role === "USER" && (
             <>
               <Input
@@ -104,14 +132,12 @@ export default function Register() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
-
               <Input
                 label="Age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
               />
-
               <Input
                 label="Salary"
                 type="number"
@@ -121,26 +147,13 @@ export default function Register() {
             </>
           )}
 
-          {/* ROLE SELECT */}
-          <div style={{ marginBottom: "14px" }}>
-            <label className="label">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="select"
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
-
           <Button type="submit" className="w-full">
-            Register
+            {role === "ADMIN" ? "Register as Admin" : "Register"}
           </Button>
         </form>
 
         {/* LOGIN LINK */}
-        <p style={{ marginTop: "16px", textAlign: "center" }}>
+        <p style={{ marginTop: "15px", textAlign: "center" }}>
           Already have an account?{" "}
           <span
             style={{
