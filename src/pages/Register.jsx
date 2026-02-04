@@ -1,9 +1,8 @@
 import { useState } from "react";
-import API from "../api/axiosConfig";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import Card from "../components/Card";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axiosConfig";
+import Card from "../components/Card";
+import Button from "../components/Button";
 import "../styles/ui.css";
 
 export default function Register() {
@@ -15,6 +14,8 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // USER only fields
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState("");
   const [salary, setSalary] = useState("");
@@ -57,7 +58,7 @@ export default function Register() {
       await API.post(endpoint, payload);
 
       setSuccess("Registration successful! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => navigate("/login"), 1000);
 
     } catch (err) {
       setError(
@@ -70,99 +71,85 @@ export default function Register() {
 
   return (
     <div className="container fade-in">
-      <Card style={{ maxWidth: "420px", margin: "auto" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-          Register
-        </h2>
+      <Card>
+        <h2>Register</h2>
 
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
 
-        <form onSubmit={handleRegister} className="form-stack">
-
+        <form onSubmit={handleRegister}>
           {/* ROLE */}
-          <label className="label">
-            Register As
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="input"
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="USER">User</option>
+            <option value="ADMIN">Admin</option>
+          </select>
 
-          <Input
-            label="Full Name"
+          {/* COMMON */}
+          <input
+            type="text"
+            placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
 
-          <Input
-            label="Email"
+          <input
             type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
-          <Input
-            label="Password"
+          <input
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <Input
-            label="Confirm Password"
+          <input
             type="password"
+            placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
 
-          {/* USER ONLY FIELDS */}
+          {/* USER ONLY */}
           {role === "USER" && (
             <>
-              <Input
-                label="Phone"
+              <input
+                type="text"
+                placeholder="Phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
-              <Input
-                label="Age"
+
+              <input
                 type="number"
+                placeholder="Age"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
               />
-              <Input
-                label="Salary"
+
+              <input
                 type="number"
+                placeholder="Salary"
                 value={salary}
                 onChange={(e) => setSalary(e.target.value)}
               />
             </>
           )}
 
-          <Button type="submit" className="w-full">
-            {role === "ADMIN" ? "Register as Admin" : "Register"}
-          </Button>
+          <Button type="submit">Register</Button>
         </form>
 
-        {/* LOGIN LINK */}
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
+        {/* ✅ LOGIN LINK (VISIBLE) */}
+        <p style={{ textAlign: "center", marginTop: "15px" }}>
           Already have an account?{" "}
-          <span
-            style={{
-              color: "var(--primary)",
-              cursor: "pointer",
-              fontWeight: "600",
-            }}
-            onClick={() => navigate("/login")}
-          >
+          <span onClick={() => navigate("/login")}>
             Login
           </span>
         </p>

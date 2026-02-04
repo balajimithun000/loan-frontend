@@ -13,11 +13,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // 🔐 If already logged in, redirect
+  // 🔐 Already logged in na redirect
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/profile");
+      navigate("/profile"); // default user page
     }
   }, [navigate]);
 
@@ -37,7 +37,7 @@ export default function Login() {
       // 2️⃣ SAVE TOKEN
       localStorage.setItem("token", token);
 
-      // 3️⃣ GET PROFILE (to know role)
+      // 3️⃣ GET PROFILE (ROLE CHECK)
       const profileRes = await API.get("/users/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -47,7 +47,7 @@ export default function Login() {
       const role = profileRes.data.role;
 
       // 4️⃣ ROLE BASED REDIRECT
-      if (role === "ADMIN") {
+      if (role === "ADMIN" || role === "ROLE_ADMIN") {
         navigate("/admin/dashboard");
       } else {
         navigate("/profile");
@@ -65,9 +65,7 @@ export default function Login() {
   return (
     <div className="container fade-in">
       <Card>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
-          Login
-        </h2>
+        <h2>Login</h2>
 
         {error && <p className="error">{error}</p>}
 
@@ -88,18 +86,13 @@ export default function Login() {
             required
           />
 
-          <Button type="submit" className="w-full">
-            Login
-          </Button>
+          <Button type="submit">Login</Button>
         </form>
 
-        {/* 👇 REGISTER LINK (IMPORTANT) */}
+        {/* 👇 REGISTER LINK */}
         <p style={{ marginTop: "15px", textAlign: "center" }}>
           Don’t have an account?{" "}
-          <span
-            style={{ color: "var(--primary)", cursor: "pointer" }}
-            onClick={() => navigate("/register")}
-          >
+          <span onClick={() => navigate("/register")}>
             Register
           </span>
         </p>
