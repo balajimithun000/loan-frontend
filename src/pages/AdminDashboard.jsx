@@ -114,11 +114,11 @@ export default function AdminDashboard() {
 
               <h4>Loan #{loan.id}</h4>
 
-              <p>Type: {loan.loanType}</p>
+              <p>Loan Type: {loan.loanType}</p>
               <p>Amount: ₹{loan.loanAmount}</p>
               <p>EMI: ₹{loan.emi}</p>
               <p>Interest: {loan.interestRate}%</p>
-
+              <p>Credit Score:{loan.creditScore}</p>
               <p>
                 Status:
                 <span style={{
